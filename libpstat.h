@@ -16,8 +16,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _PSTAT_H_
-#define _PSTAT_H_
+#ifndef _LIBPSTAT_H_
+#define _LIBPSTAT_H_
 
 #include <stdio.h>
 #include <stdlib.h>
