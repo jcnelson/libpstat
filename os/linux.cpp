@@ -57,6 +57,9 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
       return rc;
    }
    
+   // the fact that this path exists means that it's running
+   ps->running = true;
+   
    // verify that it isn't deleted
    nr = readlink( proc_path, bin_path, PATH_MAX );
    if( nr < 0 ) {
