@@ -16,7 +16,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "libpstat.h"
+#include "linux.h"
 
 // Linux-specific implementation 
 #ifdef _LINUX
@@ -36,6 +36,8 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    
    memset( proc_path, 0, PATH_MAX+1 );
    memset( bin_path, 0, PATH_MAX+1 );
+   
+   ps->pid = pid;
    
    sprintf( proc_path, "/proc/%d/exe", pid );
    
@@ -68,7 +70,6 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    if( strlen( bin_path ) > strlen( " (deleted)") && strcmp( bin_path + strlen(bin_path) - deleted_len, " (deleted)" ) == 0 ) {
       
       ps->deleted = true;
-      ps->proc_path = strdup( proc_path );
       close( fd );
       return 0;
    }
@@ -83,7 +84,7 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    }
    
    ps->deleted = false;
-   strcpy( ps->path, bin_path, strlen(bin_path) );
+   strcpy( ps->path, bin_path );
    
    if( flags & PSTAT_HASH ) {
       rc = pstat_os_sha256_fd( fd, ps->sha256 );

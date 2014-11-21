@@ -1,5 +1,5 @@
 CPP    := g++ -Wall -g -fPIC
-LIB   := -lpthread -lrt
+LIB   := -lssl -lcrypto
 INC   := -I/usr/include -I/usr/local/include -I. -Ios/
 C_SRCS:= $(wildcard *.c) $(wildcard os/*.c)
 CXSRCS:= $(wildcard *.cpp) $(wildcard os/*.cpp)

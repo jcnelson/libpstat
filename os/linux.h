@@ -16,15 +16,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _PSTAT_LINUX_H_
-#define _PSTAT_LINUX_H_
+#ifndef _PSTAT_OS_LINUX_H_
+#define _PSTAT_OS_LINUX_H_
 
-#include "libpstat.h"
 #include "common.h"
 
 extern "C" {
 
-int pstat_os( pid_t, struct pstat* ps, int flags );
+int pstat_os( pid_t pid, struct pstat* ps, int flags );
 
 }
 
