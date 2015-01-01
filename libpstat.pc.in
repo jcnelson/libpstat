@@ -1,0 +1,12 @@
+prefix=@PREFIX@
+exec_prefix=${prefix}
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: pstat
+Description: Process status library
+Version: @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
+
+Requires:
+Libs:  -lpstat @LIBS@
+Cflags: -I${includedir}

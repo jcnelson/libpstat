@@ -12,19 +12,38 @@ TOOL_OBJ := $(patsubst %.c,%.o,$(TOOL_SRCS)) $(patsubst %.cpp,%.o,$(TOOL_CXSRCS)
 
 DEFS  := -D_REENTRANT -D_THREAD_SAFE -D__STDC_FORMAT_MACROS
 
+VERSION_MAJOR := 1
+VERSION_MINOR := 0
+VERSION_PATCH := 1
+
 LIBPSTAT := libpstat.so
-LIBPSTAT_SO := libpstat.so.1
-LIBPSTAT_LIB := libpstat.so.1.0.1
+LIBPSTAT_SO := libpstat.so.$(VERSION_MAJOR)
+LIBPSTAT_LIB := libpstat.so.$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 
 PSTAT := tools/pstat
 
-DESTDIR := /usr/local/bin
-LIBDIR := /usr/local/lib
-INCDIR  := /usr/local/include/pstat
+PREFIX ?= /usr
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include/pstat
+PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
 
-OS := UNKNOWN
+OS := LINUX
+
+PC_FILE := libpstat.pc
 
 all: libpstat pstat
+
+$(PC_FILE):	$(PC_FILE).in
+	@cat $< | \
+		sed -e 's~@PREFIX@~$(PREFIX)~g;' | \
+		sed -e 's~@INCLUDEDIR@~$(INCLUDEDIR)~g;' | \
+		sed -e 's~@VERSION@~$(VERSION)~g; ' | \
+		sed -e 's~@LIBS@~$(LIB)~g; ' | \
+		sed -e 's~@LIBDIR@~$(LIBDIR)~g; ' | \
+	   sed -e 's~@VERSION_MAJOR@~$(VERSION_MAJOR)~g; ' | \
+	   sed -e 's~@VERSION_MINOR@~$(VERSION_MINOR)~g; ' | \
+	   sed -e 's~@VERSION_PATCH@~$(VERSION_PATCH)~g; '	> $@
 
 libpstat: $(OBJ)
 	$(CPP) -shared -Wl,-soname,$(LIBPSTAT_SO) -o $(LIBPSTAT_LIB) $(OBJ) $(LIBINC) $(LIB)
@@ -34,12 +53,21 @@ libpstat: $(OBJ)
 pstat: $(TOOL_OBJ)
 	$(CPP) -o $(PSTAT) $(TOOL_OBJ) $(LIBINC) -L. -lpstat
 
-install: libpstat pstat
-	/bin/cp -a $(PSTAT) $(DESTDIR)
-	/bin/cp -a $(LIBPSTAT) $(LIBPSTAT_SO) $(LIBPSTAT_LIB) $(LIBDIR)
-	/bin/mkdir -p $(INCDIR) $(INCDIR)/os
-	/bin/cp -a $(wildcard os/*.h) $(INCDIR)/os
-	/bin/cp -a $(wildcard *.h) $(INCDIR)
+libpstat-install: libpstat $(PC_FILE)
+	mkdir -p $(LIBDIR) $(PKGCONFIGDIR)
+	cp -a $(LIBPSTAT) $(LIBPSTAT_SO) $(LIBPSTAT_LIB) $(LIBDIR)
+	cp -a $(PC_FILE) $(PKGCONFIGDIR)
+
+pstat-install: pstat
+	mkdir -p $(BINDIR)
+	cp -a $(PSTAT) $(BINDIR)
+
+libpstat-dev-install: libpstat
+	mkdir -p $(INCLUDEDIR) $(INCLUDEDIR)/os
+	cp -a $(wildcard os/*.h) $(INCLUDEDIR)/os
+	cp -a $(wildcard *.h) $(INCLUDEDIR)
+
+install: libpstat-install pstat-install libpstat-dev-install
 
 %.o : %.c
 	$(CPP) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
@@ -49,4 +77,4 @@ install: libpstat pstat
 
 .PHONY: clean
 clean:
-	/bin/rm -f $(OBJ) $(TOOL_OBJ) $(LIBPSTAT_LIB) $(LIBPSTAT_SO) $(LIBPSTAT) $(PSTAT)
+	/bin/rm -f $(OBJ) $(TOOL_OBJ) $(LIBPSTAT_LIB) $(LIBPSTAT_SO) $(LIBPSTAT) $(PSTAT) $(PC_FILE)
