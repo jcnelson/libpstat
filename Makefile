@@ -1,4 +1,4 @@
-CPP    := gcc -Wall -g -fPIC
+CPP    := gcc -Wall -g -fPIC -std=c99
 LIB   := 
 LIB_USE_SSL := -lssl -lcrypto
 INC   := -I. -Ios/ -I/usr/include -I/usr/local/include 
@@ -9,7 +9,7 @@ TOOL_CXSRCS := $(wildcard tools/*.cpp)
 
 HEADERS := $(wildcard *.h) $(wildcard os/*.h)
 OBJ   := $(patsubst %.c,%.o,$(C_SRCS)) $(patsubst %.cpp,%.o,$(CXSRCS))
-TOOL_OBJ := $(patsubst %.c,%.o,$(TOOL_SRCS)) $(patsubst %.cpp,%.o,$(TOOL_CXSRCS))
+TOOL_OBJ := $(patsubst %.c,%.o,$(TOOL_C_SRCS)) $(patsubst %.cpp,%.o,$(TOOL_CXSRCS))
 
 DEFS  := -D_THREAD_SAFE -D__STDC_FORMAT_MACROS
 
@@ -30,13 +30,6 @@ INCLUDEDIR ?= $(PREFIX)/include/pstat
 PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
 
 OS ?= LINUX
-
-# process USE 
-ifdef USE_SSL
-	# compile with SSL
-	DEFS += -D_USE_SSL
-	LIB += $(LIB_USE_SSL)
-endif
 
 PC_FILE := libpstat.pc
 

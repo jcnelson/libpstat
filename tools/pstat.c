@@ -22,20 +22,8 @@
 #include "pstat.h"
 
 void usage( char const* prog_name ) {
-   fprintf(stderr, "Usage: %s PID [PID...]", prog_name);
+   fprintf(stderr, "Usage: %s PID [PID...]\n", prog_name);
    exit(1);
-}
-
-char* sha256_printable( unsigned char const* sha256 ) {
-   char* ret = (char*)calloc( sizeof(char) * (2 * SHA256_DIGEST_LENGTH + 1), 1 );
-   char buf[3];
-   for( int i = 0; i < SHA256_DIGEST_LENGTH; i++ ) {
-      sprintf(buf, "%02x", sha256[i] );
-      ret[2*i] = buf[0];
-      ret[2*i + 1] = buf[1];
-   }
-   
-   return ret;
 }
 
 void print_pstat( struct pstat* ps ) {
@@ -49,20 +37,12 @@ void print_pstat( struct pstat* ps ) {
    
    if( !ps->deleted ) {
       
-      char* proc_sha256 = sha256_printable( ps->sha256 );
-      if( proc_sha256 == NULL ) {
-         // OOM
-         exit(2);
-      }
-      
       printf("  binary:  %s\n", ps->path );
       printf("  deleted: %s\n", ps->deleted ? "true": "false" );
       printf("  inode:   %ld\n", ps->bin_stat.st_ino );
       printf("  size:    %jd\n", ps->bin_stat.st_size );
-      printf("  modtime: %ld.%ld\n", ps->bin_stat.st_mtim.tv_sec, ps->bin_stat.st_mtim.tv_nsec );
-      printf("  SHA256:  %s\n", proc_sha256 );
+      printf("  modtime: %ld\n", ps->bin_stat.st_mtime );
       
-      free( proc_sha256 );
    }
    else {
       printf("  deleted: true\n");
@@ -91,10 +71,10 @@ int main( int argc, char** argv ) {
       
       memset( &ps, 0, sizeof(struct pstat) );
       
-      rc = pstat( pid, &ps, PSTAT_HASH );
+      rc = pstat( pid, &ps, 0 );
       
       if( rc != 0 ) {
-         perror("pstat");
+         fprintf( stderr, "pstat(%d) rc = %d\n", pid, rc );
          exit(1);
       }
       

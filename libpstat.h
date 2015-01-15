@@ -35,17 +35,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <stdbool.h>
 
-#ifdef _USE_SHA256
-
-#include <openssl/sha.h>
-#else
-
-#define SHA256_DIGEST_LENGTH 32         // 256 / 8
+#ifndef PATH_MAX
+#define PATH_MAX 4096
 #endif
-
-// flags for pstat()
-#define PSTAT_HASH      0x1
 
 // process status structure
 struct pstat {
@@ -56,25 +50,11 @@ struct pstat {
    bool deleted;                                        // whether or not the process binary is deleted (in which case, proc_stat will be uninitialized)
    
    struct stat bin_stat;                                // stat(2) result from the binary path
-   
-   unsigned char sha256[SHA256_DIGEST_LENGTH];          // sha256 of the process binary.  Ignored if the PSTAT_HASH bit is not set in flags
 };
-
-extern "C" {
 
 // stat a running process.
 // return 0 on success, which is qualified to mean "We could fill in at least one pstat field, besides the PID"
 // return -errno on error (specific to the OS)
 int pstat( pid_t pid, struct pstat* ps, int flags );
-
-// Get the SHA256 of a process, as identified by the filled-in pstat structure.
-// ps should be populated by a prior call to pstat
-// return 0 on success
-// return -ENOENT if the process binary was deleted
-// return -ECHILD if the process is not running
-// return -errno if we fail to resolve or open the binary for reading.
-int pstat_sha256( struct pstat* ps );
-
-}
 
 #endif 

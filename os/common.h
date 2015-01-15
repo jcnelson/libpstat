@@ -23,10 +23,4 @@
 
 #include "libpstat.h"
 
-extern "C" {
-   
-int pstat_os_sha256_fd( int fd, unsigned char* buf );
-
-}
-
 #endif 

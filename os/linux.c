@@ -31,20 +31,11 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    
    int rc = 0;
    
-#ifndef _USE_SHA256
-   
-   // sanity check
-   if( flags & PSTAT_HASH ) {
-      return -EINVAL;
-   }
-   
-#endif
-   
    char proc_path[PATH_MAX+1];
    char bin_path[PATH_MAX+1];
    int fd = 0;
    ssize_t nr = 0;
-   static size_t deleted_len = strlen( " (deleted)" );
+   size_t deleted_len = strlen( " (deleted)" );
    
    memset( proc_path, 0, PATH_MAX+1 );
    memset( bin_path, 0, PATH_MAX+1 );
@@ -100,13 +91,6 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    
    ps->deleted = false;
    strcpy( ps->path, bin_path );
-   
-   if( flags & PSTAT_HASH ) {
-      rc = pstat_os_sha256_fd( fd, ps->sha256 );
-   }
-   else {
-      memset( ps->sha256, 0, SHA256_DIGEST_LENGTH );
-   }
    
    close( fd );
    
