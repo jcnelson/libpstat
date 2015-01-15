@@ -52,9 +52,17 @@ struct pstat {
    struct stat bin_stat;                                // stat(2) result from the binary path
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // stat a running process.
 // return 0 on success, which is qualified to mean "We could fill in at least one pstat field, besides the PID"
 // return -errno on error (specific to the OS)
 int pstat( pid_t pid, struct pstat* ps, int flags );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif 
