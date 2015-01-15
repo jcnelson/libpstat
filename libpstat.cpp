@@ -38,6 +38,10 @@ int pstat( pid_t pid, struct pstat* ps, int flags ) {
    return pstat_os( pid, ps, flags );
 }
 
+
+#ifdef _USE_SHA256
+
+// get the SHA256 of a running process
 int pstat_sha256( struct pstat* ps ) {
    
    int fd = 0;
@@ -62,3 +66,12 @@ int pstat_sha256( struct pstat* ps ) {
    close( fd );
    return rc;
 }
+
+#else 
+
+// no-op 
+int pstat_sha256( struct pstat* ps ) {
+   return -ENOSYS;
+}
+
+#endif

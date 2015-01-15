@@ -21,6 +21,9 @@
 
 #include "common.h"
 
+
+#ifdef _USE_SHA256
+
 // get the sha256 of the data referred to by file descriptor.
 // new_checksum must be at least SHA256_DIGEST_LENGTH bytes long
 // read to EOF 
@@ -54,3 +57,12 @@ int pstat_os_sha256_fd( int fd, unsigned char* new_checksum ) {
    return 0;
 }
 
+#else 
+
+// no-op
+int pstat_os_sha256_fd( int fd, unsigned char* new_checksum ) {
+   
+   return -ENOSYS;
+}
+
+#endif

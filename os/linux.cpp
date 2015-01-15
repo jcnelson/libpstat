@@ -31,6 +31,15 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    
    int rc = 0;
    
+#ifndef _USE_SHA256
+   
+   // sanity check
+   if( flags & PSTAT_HASH ) {
+      return -EINVAL;
+   }
+   
+#endif
+   
    char proc_path[PATH_MAX+1];
    char bin_path[PATH_MAX+1];
    int fd = 0;
@@ -101,7 +110,7 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    
    close( fd );
    
-   return 0;
+   return rc;
 }
 
 #endif  // #define _LINUX

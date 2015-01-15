@@ -35,7 +35,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <limits.h>
+
+#ifdef _USE_SHA256
+
 #include <openssl/sha.h>
+#else
+
+#define SHA256_DIGEST_LENGTH 32         // 256 / 8
+#endif
 
 // flags for pstat()
 #define PSTAT_HASH      0x1

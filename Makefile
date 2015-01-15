@@ -1,6 +1,7 @@
-CPP    := g++ -Wall -g -fPIC
-LIB   := -lssl -lcrypto
-INC   := -I/usr/include -I/usr/local/include -I. -Ios/
+CPP    := gcc -Wall -g -fPIC
+LIB   := 
+LIB_USE_SSL := -lssl -lcrypto
+INC   := -I. -Ios/ -I/usr/include -I/usr/local/include 
 C_SRCS:= $(wildcard *.c) $(wildcard os/*.c)
 CXSRCS:= $(wildcard *.cpp) $(wildcard os/*.cpp)
 TOOL_C_SRCS := $(wildcard tools/*.c)
@@ -10,7 +11,7 @@ HEADERS := $(wildcard *.h) $(wildcard os/*.h)
 OBJ   := $(patsubst %.c,%.o,$(C_SRCS)) $(patsubst %.cpp,%.o,$(CXSRCS))
 TOOL_OBJ := $(patsubst %.c,%.o,$(TOOL_SRCS)) $(patsubst %.cpp,%.o,$(TOOL_CXSRCS))
 
-DEFS  := -D_REENTRANT -D_THREAD_SAFE -D__STDC_FORMAT_MACROS
+DEFS  := -D_THREAD_SAFE -D__STDC_FORMAT_MACROS
 
 VERSION_MAJOR := 1
 VERSION_MINOR := 0
@@ -22,13 +23,20 @@ LIBPSTAT_LIB := libpstat.so.$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 
 PSTAT := tools/pstat
 
-PREFIX ?= /usr
+PREFIX ?= /
 BINDIR ?= $(PREFIX)/bin
 LIBDIR ?= $(PREFIX)/lib
 INCLUDEDIR ?= $(PREFIX)/include/pstat
 PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
 
-OS := LINUX
+OS ?= LINUX
+
+# process USE 
+ifdef USE_SSL
+	# compile with SSL
+	DEFS += -D_USE_SSL
+	LIB += $(LIB_USE_SSL)
+endif
 
 PC_FILE := libpstat.pc
 
