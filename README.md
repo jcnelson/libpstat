@@ -43,19 +43,8 @@ The library defines the following process status structure:
    
       // stat structure for the process binary, if it exists.
       struct stat bin_stat;
-   
-      // SHA256 hash of the process binary, if it exists.
-      // Optionally calculated; see below.
-      unsigned char sha256[SHA256_DIGEST_LENGTH];
     }
 
-
-The library defines the following constants
-
-    // Flag to pass to pstat() to have it calculate the SHA256 
-    // of the process binary.
-    #define PSTAT_HASH          0x1
-   
 
 The following methods are exported:
 
