@@ -1,6 +1,8 @@
-CPP    := gcc -Wall -g -fPIC -std=c99
+CC			?= cc
+CXX			?= c++
+CFLAGS		?= -Wall -g -fPIC -std=c99
+CXXFLAGS 	?= -Wall -g -fPIC
 LIB   := 
-LIB_USE_SSL := -lssl -lcrypto
 INC   := -I. -Ios/ -I/usr/include -I/usr/local/include 
 C_SRCS:= $(wildcard *.c) $(wildcard os/*.c)
 CXSRCS:= $(wildcard *.cpp) $(wildcard os/*.cpp)
@@ -48,12 +50,12 @@ $(PC_FILE):	$(PC_FILE).in
 	   sed -e 's~@VERSION_PATCH@~$(VERSION_PATCH)~g; '	> $@
 
 libpstat: $(OBJ)
-	$(CPP) -shared -Wl,-soname,$(LIBPSTAT_SO) -o $(LIBPSTAT_LIB) $(OBJ) $(LIBINC) $(LIB)
+	$(CXX) $(CXXFLAGS) -shared -Wl,-soname,$(LIBPSTAT_SO) -o $(LIBPSTAT_LIB) $(OBJ) $(LIBINC) $(LIB)
 	$(SHELL) -c "if ! test -L $(LIBPSTAT_SO); then /bin/ln -s $(LIBPSTAT_LIB) $(LIBPSTAT_SO); fi"
 	$(SHELL) -c "if ! test -L $(LIBPSTAT); then /bin/ln -s $(LIBPSTAT_SO) $(LIBPSTAT); fi"
 
 pstat: $(TOOL_OBJ)
-	$(CPP) -o $(PSTAT) $(TOOL_OBJ) $(LIBINC) -L. -lpstat
+	$(CXX) $(CXXFLAGS) -o $(PSTAT) $(TOOL_OBJ) $(LIBINC) -L. -lpstat
 
 libpstat-install: libpstat $(PC_FILE)
 	mkdir -p $(LIBDIR) $(PKGCONFIGDIR)
@@ -72,10 +74,10 @@ libpstat-dev-install: libpstat
 install: libpstat-install pstat-install libpstat-dev-install
 
 %.o : %.c
-	$(CPP) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
+	$(CC) $(CFLAGS) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
 
 %.o : %.cpp
-	$(CPP) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
+	$(CXX) $(CXXFLAGS) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
 
 .PHONY: clean
 clean:
