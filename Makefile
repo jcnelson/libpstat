@@ -24,10 +24,11 @@ LIBPSTAT_LIB := libpstat.so.$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 PSTAT := tools/pstat
 
 PREFIX ?= /
-BINDIR ?= $(PREFIX)/bin
-LIBDIR ?= $(PREFIX)/lib
-INCLUDEDIR ?= $(PREFIX)/include/pstat
-PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
+DESTDIR ?= /
+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
+LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
+INCLUDEDIR ?= $(DESTDIR)/usr/include/pstat
+PKGCONFIGDIR ?= $(DESTDIR)/usr/lib/pkgconfig
 
 OS ?= LINUX
 
