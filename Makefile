@@ -1,23 +1,21 @@
-CC			?= cc
-CXX			?= c++
-CFLAGS		?= -Wall -g -fPIC -std=c99
-CXXFLAGS 	?= -Wall -g -fPIC
-LIB   := 
-INC   := -I. -Ios/ -I/usr/include -I/usr/local/include 
-C_SRCS:= $(wildcard *.c) $(wildcard os/*.c)
-CXSRCS:= $(wildcard *.cpp) $(wildcard os/*.cpp)
-TOOL_C_SRCS := $(wildcard tools/*.c)
-TOOL_CXSRCS := $(wildcard tools/*.cpp)
+ROOT_DIR := $(shell dirname "$(realpath $(lastword $(MAKEFILE_LIST)))")
+BUILD    ?= $(ROOT_DIR)/build
 
+CC	    ?= cc
+CFLAGS ?= -Wall -g -fPIC -std=c99
+LIB   := 
+INC   := -I. -I$(BUILD) -I$(BUILD)/include/pstat
+C_SRCS:= $(wildcard *.c) $(wildcard os/*.c)
+TOOL_C_SRCS := $(wildcard tools/*.c)
 HEADERS := $(wildcard *.h) $(wildcard os/*.h)
-OBJ   := $(patsubst %.c,%.o,$(C_SRCS)) $(patsubst %.cpp,%.o,$(CXSRCS))
-TOOL_OBJ := $(patsubst %.c,%.o,$(TOOL_C_SRCS)) $(patsubst %.cpp,%.o,$(TOOL_CXSRCS))
+OBJ   := $(patsubst %.c,$(BUILD)/%.o,$(C_SRCS))
+TOOL_OBJ := $(patsubst %.c,$(BUILD)/%.o,$(TOOL_C_SRCS))
 
 DEFS  := -D_THREAD_SAFE -D__STDC_FORMAT_MACROS
 
 VERSION_MAJOR := 1
 VERSION_MINOR := 0
-VERSION_PATCH := 1
+VERSION_PATCH := 2
 
 LIBPSTAT := libpstat.so
 LIBPSTAT_SO := libpstat.so.$(VERSION_MAJOR)
@@ -27,18 +25,42 @@ PSTAT := tools/pstat
 
 PREFIX ?= /
 DESTDIR ?= /
-BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
-INCLUDEDIR ?= $(DESTDIR)/usr/include/pstat
-PKGCONFIGDIR ?= $(DESTDIR)/usr/lib/pkgconfig
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include/pstat
+PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
 
 OS ?= LINUX
 
-PC_FILE := libpstat.pc
 
-all: libpstat pstat
+BUILD_LIBPSTAT_LIB := $(patsubst %,$(BUILD)/$(LIBDIR)/%,$(LIBPSTAT_LIB))
+INSTALL_LIBPSTAT_LIB := $(patsubst $(BUILD)/$(LIBDIR)/%,$(LIBDIR)/%,$(BUILD_LIBPSTAT_LIB))
 
-$(PC_FILE):	$(PC_FILE).in
+BUILD_LIBPSTAT_SO := $(patsubst %,$(BUILD)/$(LIBDIR)/%,$(LIBPSTAT_SO))
+INSTALL_LIBPSTAT_SO := $(patsubst $(BUILD)/$(LIBDIR)/%,$(LIBDIR)/%,$(BUILD_LIBPSTAT_SO))
+
+BUILD_LIBPSTAT := $(patsubst %,$(BUILD)/$(LIBDIR)/%,$(LIBPSTAT))
+INSTALL_LIBPSTAT := $(patsubst $(BUILD)/$(LIBDIR)/%,$(LIBDIR)/%,$(BUILD_LIBPSTAT))
+
+# NOTE: don't install os/ headers, since they're different for each OS.
+BUILD_HEADERS := $(patsubst %,$(BUILD)/$(INCLUDEDIR)/%,$(HEADERS))
+INSTALL_HEADERS := $(patsubst %,$(DESTDIR)/$(INCLUDEDIR)/%,$(wildcard *.h))
+
+BUILD_PC_FILE := $(BUILD)/libpstat.pc
+INSTALL_PC_FILE := $(DESTDIR)/$(PKGCONFIGDIR)/libpstat.pc
+
+BUILD_PSTAT := $(patsubst tools/%,$(BUILD)/$(BINDIR)/%,$(PSTAT))
+INSTALL_PSTAT := $(patsubst $(BUILD)/$(BINDIR)/%,$(BINDIR)/%,$(BUILD_PSTAT))
+
+all: tools libs
+
+tools: $(BUILD_PSTAT)
+
+libs: $(BUILD_HEADERS) $(BUILD_PC_FILE) $(BUILD_LIBPSTAT) $(BUILD_LIBPSTAT_SO) $(BUILD_LIBPSTAT_LIB)
+
+
+$(BUILD_PC_FILE): libpstat.pc.in
+	@mkdir -p "$(shell dirname "$@")"
 	@cat $< | \
 		sed -e 's~@PREFIX@~$(PREFIX)~g;' | \
 		sed -e 's~@INCLUDEDIR@~$(INCLUDEDIR)~g;' | \
@@ -49,36 +71,71 @@ $(PC_FILE):	$(PC_FILE).in
 	   sed -e 's~@VERSION_MINOR@~$(VERSION_MINOR)~g; ' | \
 	   sed -e 's~@VERSION_PATCH@~$(VERSION_PATCH)~g; '	> $@
 
-libpstat: $(OBJ)
-	$(CXX) $(CXXFLAGS) -shared -Wl,-soname,$(LIBPSTAT_SO) -o $(LIBPSTAT_LIB) $(OBJ) $(LIBINC) $(LIB)
-	$(SHELL) -c "if ! test -L $(LIBPSTAT_SO); then /bin/ln -s $(LIBPSTAT_LIB) $(LIBPSTAT_SO); fi"
-	$(SHELL) -c "if ! test -L $(LIBPSTAT); then /bin/ln -s $(LIBPSTAT_SO) $(LIBPSTAT); fi"
+$(BUILD_LIBPSTAT_LIB): $(OBJ)
+	@mkdir -p "$(shell dirname "$@")"
+	$(CC) $(CFLAGS) -shared -Wl,-soname,$(LIBPSTAT_SO) -o "$@" $(OBJ) $(LIBINC) $(LIB)
 
-pstat: $(TOOL_OBJ)
-	$(CXX) $(CXXFLAGS) -o $(PSTAT) $(TOOL_OBJ) $(LIBINC) -L. -lpstat
+$(BUILD_LIBPSTAT_SO): $(BUILD_LIBPSTAT_LIB)
+	@mkdir -p "$(shell dirname "$@")"
+	@ln -sf "$(shell basename "$<")" "$@"
 
-libpstat-install: libpstat $(PC_FILE)
-	mkdir -p $(LIBDIR) $(PKGCONFIGDIR)
-	cp -a $(LIBPSTAT) $(LIBPSTAT_SO) $(LIBPSTAT_LIB) $(LIBDIR)
-	cp -a $(PC_FILE) $(PKGCONFIGDIR)
+$(BUILD_LIBPSTAT): $(BUILD_LIBPSTAT_SO)
+	@mkdir -p "$(shell dirname "$@")"
+	@ln -sf "$(shell basename "$<")" "$@"
 
-pstat-install: pstat
-	mkdir -p $(BINDIR)
-	cp -a $(PSTAT) $(BINDIR)
+$(BUILD_PSTAT): $(TOOL_OBJ) $(BUILD_LIBPSTAT)
+	@mkdir -p "$(shell dirname "$@")"
+	$(CC) $(CFLAGS) -o "$@" $(TOOL_OBJ) $(LIBINC) -L$(BUILD)/$(LIBDIR) -lpstat
 
-libpstat-dev-install: libpstat
-	mkdir -p $(INCLUDEDIR) $(INCLUDEDIR)/os
-	cp -a $(wildcard os/*.h) $(INCLUDEDIR)/os
-	cp -a $(wildcard *.h) $(INCLUDEDIR)
+$(BUILD)/$(INCLUDEDIR)/%.h: %.h
+	@mkdir -p "$(shell dirname "$@")"
+	@cp -a "$<" "$@"
 
-install: libpstat-install pstat-install libpstat-dev-install
 
-%.o : %.c
-	$(CC) $(CFLAGS) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
+$(DESTDIR)/$(INSTALL_LIBPSTAT): $(BUILD_LIBPSTAT)
+	@mkdir -p "$(shell dirname "$@")"
+	cp -a "$<" "$@"
 
-%.o : %.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $(INC) -c $< $(DEFS) -D_$(OS)
+$(DESTDIR)/$(INSTALL_LIBPSTAT_SO): $(BUILD_LIBPSTAT_SO)
+	@mkdir -p "$(shell dirname "$@")"
+	cp -a "$<" "$@"
+
+$(DESTDIR)/$(INSTALL_LIBPSTAT_LIB): $(BUILD_LIBPSTAT_LIB)
+	@mkdir -p "$(shell dirname "$@")"
+	cp -a "$<" "$@"
+
+$(DESTDIR)/$(INCLUDEDIR)/%.h: $(BUILD)/$(INCLUDEDIR)/%.h
+	@mkdir -p "$(shell dirname "$@")"
+	cp -a "$<" "$@"
+
+$(DESTDIR)/$(INSTALL_PC_FILE): $(BUILD_PC_FILE)
+	@mkdir -p "$(shell dirname "$@")"
+	cp -a "$<" "$@"
+
+$(DESTDIR)/$(INSTALL_PSTAT): $(BUILD_PSTAT)
+	@mkdir -p "$(shell dirname "$@")"
+	cp -a "$<" "$@"
+
+
+libs-install: $(DESTDIR)/$(INSTALL_LIBPSTAT) $(DESTDIR)/$(INSTALL_LIBPSTAT_SO) $(DESTDIR)/$(INSTALL_LIBPSTAT_LIB)
+
+tools-install: $(DESTDIR)/$(INSTALL_PSTAT)
+
+headers-install: $(INSTALL_HEADERS)
+
+install: libs-install tools-install
+
+$(BUILD)/%.o : %.c
+	@mkdir -p "$(shell dirname "$@")"
+	$(CC) $(CFLAGS) -o "$@" $(INC) -c "$<" $(DEFS) -D_$(OS)
 
 .PHONY: clean
 clean:
-	/bin/rm -f $(OBJ) $(TOOL_OBJ) $(LIBPSTAT_LIB) $(LIBPSTAT_SO) $(LIBPSTAT) $(PSTAT) $(PC_FILE)
+	rm -f $(BUILD_HEADERS) $(BUILD_LIBPSTAT_LIB) $(BUILD_LIBPSTAT_SO) $(BUILD_LIBPSTAT) $(BUILD_PC_FILE) $(BUILD_HEADERS) $(BUILD_PSTAT) $(OBJ)
+
+.PHONY: uninstall 
+uninstall:
+	rm -f $(INSTALL_HEADERS) $(DESTDIR)/$(INSTALL_LIBPSTAT_LIB) $(DESTDIR)/$(INSTALL_LIBPSTAT_SO) $(DESTDIR)/$(INSTALL_LIBPSTAT) $(DESTDIR)/$(INSTALL_PC_FILE) $(DESTDIR)/$(INSTALL_PSTAT)
+
+print-%: ; @echo $*=$($*)
+
