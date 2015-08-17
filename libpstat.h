@@ -42,27 +42,22 @@
 #endif
 
 // process status structure
-struct pstat {
-   pid_t pid;
-   bool running;                                        // whether or not the process is running.  If this is false, then the fields beneath will not be initialized
-   
-   char path[PATH_MAX+1];                               // path to the process.  set to NULL if not initialized 
-   bool deleted;                                        // whether or not the process binary is deleted (in which case, proc_stat will be uninitialized)
-   
-   struct stat bin_stat;                                // stat(2) result from the binary path
-};
+struct pstat;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// memory management
+struct pstat* pstat_new();
+void pstat_free( struct pstat* ps );
 
 // stat a running process.
 // return 0 on success, which is qualified to mean "We could fill in at least one pstat field, besides the PID"
 // return -errno on error (specific to the OS)
 int pstat( pid_t pid, struct pstat* ps, int flags );
 
-#ifdef __cplusplus
-}
-#endif
+// query a pstat structure...
+pid_t pstat_get_pid( struct pstat* ps );
+bool pstat_is_running( struct pstat* ps );
+bool pstat_is_deleted( struct pstat* ps );
+int pstat_get_path( struct pstat* ps, char* pathbuf );
+int pstat_get_stat( struct pstat* ps, struct stat* sb );
 
 #endif 

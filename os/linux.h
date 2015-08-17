@@ -23,6 +23,18 @@
 
 #include "common.h"
 #include <unistd.h>
+#include <fcntl.h>
+
+// this is private
+struct pstat {
+   pid_t pid;
+   bool running;                                        // whether or not the process is running.  If this is false, then the fields beneath will not be initialized
+   
+   char path[PATH_MAX+1];                               // path to the process.  set to NULL if not initialized 
+   bool deleted;                                        // whether or not the process binary is deleted (in which case, proc_stat will be uninitialized)
+   
+   struct stat bin_stat;                                // stat(2) result from the binary path
+};
 
 int pstat_os( pid_t pid, struct pstat* ps, int flags );
 

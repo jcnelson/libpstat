@@ -40,6 +40,8 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    memset( proc_path, 0, PATH_MAX+1 );
    memset( bin_path, 0, PATH_MAX+1 );
    
+   memset( ps, 0, sizeof(struct pstat) );
+   
    ps->pid = pid;
    
    sprintf( proc_path, "/proc/%d/exe", pid );
@@ -81,18 +83,16 @@ int pstat_os( pid_t pid, struct pstat* ps, int flags ) {
    }
    
    rc = fstat( fd, &ps->bin_stat );
+   close( fd );
    
    if( rc < 0 ) {
       
       rc = -errno;
-      close( fd );
       return rc;
    }
    
    ps->deleted = false;
-   strcpy( ps->path, bin_path );
-   
-   close( fd );
+   strncpy( ps->path, bin_path, PATH_MAX );
    
    return rc;
 }
