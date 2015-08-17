@@ -28,20 +28,26 @@ void usage( char const* prog_name ) {
 
 void print_pstat( struct pstat* ps ) {
    
-   printf("PID: %d\n", ps->pid );
-   printf("  running: %s\n", ps->running ? "true" : "false" );
+   struct stat bin_stat;
+   char path[PATH_MAX+1];
    
-   if( !ps->running ) {
+   printf("PID: %d\n", pstat_get_pid( ps ) );
+   printf("  running: %s\n", pstat_is_running( ps ) ? "true" : "false" );
+   
+   if( !pstat_is_running( ps ) ) {
       return;
    }
    
-   if( !ps->deleted ) {
+   if( !pstat_is_deleted( ps ) ) {
       
-      printf("  binary:  %s\n", ps->path );
-      printf("  deleted: %s\n", ps->deleted ? "true": "false" );
-      printf("  inode:   %ld\n", ps->bin_stat.st_ino );
-      printf("  size:    %jd\n", ps->bin_stat.st_size );
-      printf("  modtime: %ld\n", ps->bin_stat.st_mtime );
+      pstat_get_stat( ps, &bin_stat );
+      pstat_get_path( ps, path );
+      
+      printf("  binary:  %s\n", path );
+      printf("  deleted: %s\n", pstat_is_deleted( ps ) ? "true": "false" );
+      printf("  inode:   %ld\n", bin_stat.st_ino );
+      printf("  size:    %jd\n", bin_stat.st_size );
+      printf("  modtime: %ld\n", bin_stat.st_mtime );
       
    }
    else {
@@ -53,7 +59,11 @@ int main( int argc, char** argv ) {
    
    pid_t pid = 0;
    int rc = 0;
-   struct pstat ps;
+   struct pstat* ps = pstat_new();
+   
+   if( ps == NULL ) {
+      exit(1);
+   }
    
    if( argc <= 1 ) {
       usage( argv[0] );
@@ -69,17 +79,17 @@ int main( int argc, char** argv ) {
          usage( argv[0] );
       }
       
-      memset( &ps, 0, sizeof(struct pstat) );
-      
-      rc = pstat( pid, &ps, 0 );
+      rc = pstat( pid, ps, 0 );
       
       if( rc != 0 ) {
          fprintf( stderr, "pstat(%d) rc = %d\n", pid, rc );
          exit(1);
       }
       
-      print_pstat( &ps );
+      print_pstat( ps );
    }
+   
+   pstat_free( ps );
    
    return 0;
 }
