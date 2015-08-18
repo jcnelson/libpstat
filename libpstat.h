@@ -59,5 +59,6 @@ bool pstat_is_running( struct pstat* ps );
 bool pstat_is_deleted( struct pstat* ps );
 int pstat_get_path( struct pstat* ps, char* pathbuf );
 int pstat_get_stat( struct pstat* ps, struct stat* sb );
+uint64_t pstat_get_starttime( struct pstat* ps );
 
 #endif 

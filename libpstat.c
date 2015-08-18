@@ -79,4 +79,10 @@ int pstat_get_stat( struct pstat* ps, struct stat* sb ) {
    
    return 0;
 }
+
+uint64_t pstat_get_starttime( struct pstat* ps ) {
+   
+   return ps->starttime;
+}
+
    
