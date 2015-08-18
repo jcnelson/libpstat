@@ -38,6 +38,7 @@ struct pstat {
    uint64_t starttime;                                  // time (in jiffies) when this process started
 };
 
+uint64_t pstat_os_supported_features();
 int pstat_os( pid_t pid, struct pstat* ps, int flags );
 
 #endif 

@@ -24,8 +24,11 @@
 // Linux-specific implementation 
 #ifdef _LINUX
 
+uint64_t pstat_os_supported_features() {
+    return LIBPSTAT_RUNNING | LIBPSTAT_BINARY | LIBPSTAT_STARTTIME;
+}
 
-ssize_t read_uninterrupted( int fd, char* buf, size_t len ) {
+static ssize_t read_uninterrupted( int fd, char* buf, size_t len ) {
    
    ssize_t num_read = 0;
    while( (unsigned)num_read < len ) {

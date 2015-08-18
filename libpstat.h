@@ -41,8 +41,16 @@
 #define PATH_MAX 4096
 #endif
 
+// set of feature flags the implementation may support
+#define LIBPSTAT_RUNNING        0x1     // implementation can tell that a process is running 
+#define LIBPSTAT_BINARY         0x2     // implementation can tell the path and status a process's exec'ed binary image
+#define LIBPSTAT_STARTTIME      0x4     // implementation can tell when the process started
+
 // process status structure
 struct pstat;
+
+// features 
+uint64_t pstat_supported_features();
 
 // memory management
 struct pstat* pstat_new();
@@ -55,10 +63,16 @@ int pstat( pid_t pid, struct pstat* ps, int flags );
 
 // query a pstat structure...
 pid_t pstat_get_pid( struct pstat* ps );
+
+// if LIBPSTAT_RUNNING is supported
 bool pstat_is_running( struct pstat* ps );
+
+// if LIBPSTAT_BINARY is supported
 bool pstat_is_deleted( struct pstat* ps );
 int pstat_get_path( struct pstat* ps, char* pathbuf );
 int pstat_get_stat( struct pstat* ps, struct stat* sb );
+
+// if LIBPSTAT_STARTTIME is supported
 uint64_t pstat_get_starttime( struct pstat* ps );
 
 #endif 

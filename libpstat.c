@@ -31,6 +31,10 @@
 
 // insert more OSs here
 
+uint64_t pstat_supported_features() {
+   return pstat_os_supported_features();
+}
+
 // allocate a new pstat 
 struct pstat* pstat_new() {
    return (struct pstat*)calloc( sizeof(struct pstat), 1 );
