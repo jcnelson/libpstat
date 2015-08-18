@@ -31,8 +31,8 @@ void print_pstat( struct pstat* ps ) {
    struct stat bin_stat;
    char path[PATH_MAX+1];
    
-   printf("PID: %d\n", pstat_get_pid( ps ) );
-   printf("  running: %s\n", pstat_is_running( ps ) ? "true" : "false" );
+   printf("PSTAT_PID=%d\n", pstat_get_pid( ps ) );
+   printf("PSTAT_RUNNING=%s\n", pstat_is_running( ps ) ? "1" : "0" );
    
    if( !pstat_is_running( ps ) ) {
       return;
@@ -43,15 +43,16 @@ void print_pstat( struct pstat* ps ) {
       pstat_get_stat( ps, &bin_stat );
       pstat_get_path( ps, path );
       
-      printf("  binary:  %s\n", path );
-      printf("  deleted: %s\n", pstat_is_deleted( ps ) ? "true": "false" );
-      printf("  inode:   %ld\n", bin_stat.st_ino );
-      printf("  size:    %jd\n", bin_stat.st_size );
-      printf("  modtime: %ld\n", bin_stat.st_mtime );
+      printf("PSTAT_BINARY=\"%s\"\n", path );
+      printf("PSTAT_DELETED=%s\n", pstat_is_deleted( ps ) ? "1": "0" );
+      printf("PSTAT_INODE=%ld\n", bin_stat.st_ino );
+      printf("PSTAT_SIZE=%jd\n", bin_stat.st_size );
+      printf("PSTAT_MODTIME=%ld\n", bin_stat.st_mtime );
+      printf("PSTAT_STARTTIME=%" PRIu64 "\n", pstat_get_starttime( ps ) );
       
    }
    else {
-      printf("  deleted: true\n");
+      printf("PSTAT_DELETED=1\n");
    }
 }
 
