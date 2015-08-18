@@ -22,36 +22,4 @@ To install libpstat to /usr/local/lib and headers to /usr/local/include/pstat:
 Documentation
 -------------
 
-The library defines the following process status structure:
-
-   
-    struct pstat {
-
-      // PID of the process 
-      pid_t pid;
-
-      // Whether or not the process is running.
-      // If false, then the fields beneath this will not be initialized.
-      bool running;
-      
-
-      // Path to the process binary, and a flag indicating
-      // whether or not it still exists.  If it was deleted,
-      // the path will not be initialized, and deleted will be true.
-      char path[PATH_MAX+1];
-      bool deleted;
-   
-      // stat structure for the process binary, if it exists.
-      struct stat bin_stat;
-    }
-
-
-The following methods are exported:
-
-    int pstat( pid_t pid, struct pstat* ps, int flags )
-  
-Get the status of the process, given its PID.  Fill in the ps structure.
-On success, return 0, and fill in at least one field of ps, as documented above.
-On failure, return a negative errno value.  The exact value is implementation-specific.
-
-NOTE: This method succeeds even if some of ps cannot be filled in.  The running and deleted fields indicate whether or not their corresponding fields could be initialized.
+TODO
