@@ -34,6 +34,8 @@ struct pstat {
    bool deleted;                                        // whether or not the process binary is deleted (in which case, proc_stat will be uninitialized)
    
    struct stat bin_stat;                                // stat(2) result from the binary path
+   
+   uint64_t starttime;                                  // time (in jiffies) when this process started
 };
 
 int pstat_os( pid_t pid, struct pstat* ps, int flags );
