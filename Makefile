@@ -29,8 +29,8 @@ INCLUDEDIR ?= /
 
 BINDIR ?= $(DESTDIR)/$(PREFIX)/bin
 LIBDIR ?= $(DESTDIR)/$(PREFIX)/lib
-INCLUDE_DIR ?= $(INCLUDEDIR)/include/pstat
-PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
+INCLUDE_DIR ?= $(DESTDIR)/$(INCLUDEDIR)/include/pstat
+PKGCONFIGDIR ?= $(DESTDIR)/$(PREFIX)/lib/pkgconfig
 
 OS ?= LINUX
 
