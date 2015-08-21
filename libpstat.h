@@ -46,6 +46,10 @@
 #define LIBPSTAT_BINARY         0x2     // implementation can tell the path and status a process's exec'ed binary image
 #define LIBPSTAT_STARTTIME      0x4     // implementation can tell when the process started
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 // process status structure
 struct pstat;
 
@@ -74,5 +78,9 @@ int pstat_get_stat( struct pstat* ps, struct stat* sb );
 
 // if LIBPSTAT_STARTTIME is supported
 uint64_t pstat_get_starttime( struct pstat* ps );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif 
