@@ -23,11 +23,13 @@ LIBPSTAT_LIB := libpstat.so.$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 
 PSTAT := tools/pstat
 
-PREFIX ?= /
+PREFIX ?= /usr/local
 DESTDIR ?= /
-BINDIR ?= $(PREFIX)/bin
-LIBDIR ?= $(PREFIX)/lib
-INCLUDEDIR ?= $(PREFIX)/include/pstat
+INCLUDEDIR ?= /
+
+BINDIR ?= $(DESTDIR)/$(PREFIX)/bin
+LIBDIR ?= $(DESTDIR)/$(PREFIX)/lib
+INCLUDE_DIR ?= $(INCLUDEDIR)/include/pstat
 PKGCONFIGDIR ?= $(PREFIX)/lib/pkgconfig
 
 OS ?= LINUX
@@ -43,8 +45,8 @@ BUILD_LIBPSTAT := $(patsubst %,$(BUILD)/$(LIBDIR)/%,$(LIBPSTAT))
 INSTALL_LIBPSTAT := $(patsubst $(BUILD)/$(LIBDIR)/%,$(LIBDIR)/%,$(BUILD_LIBPSTAT))
 
 # NOTE: don't install os/ headers, since they're different for each OS.
-BUILD_HEADERS := $(patsubst %,$(BUILD)/$(INCLUDEDIR)/%,$(HEADERS))
-INSTALL_HEADERS := $(patsubst %,$(DESTDIR)/$(INCLUDEDIR)/%,$(wildcard *.h))
+BUILD_HEADERS := $(patsubst %,$(BUILD)/$(INCLUDE_DIR)/%,$(HEADERS))
+INSTALL_HEADERS := $(patsubst %,$(DESTDIR)/$(INCLUDE_DIR)/%,$(wildcard *.h))
 
 BUILD_PC_FILE := $(BUILD)/libpstat.pc
 INSTALL_PC_FILE := $(DESTDIR)/$(PKGCONFIGDIR)/libpstat.pc
@@ -63,7 +65,7 @@ $(BUILD_PC_FILE): libpstat.pc.in
 	@mkdir -p "$(shell dirname "$@")"
 	@cat $< | \
 		sed -e 's~@PREFIX@~$(PREFIX)~g;' | \
-		sed -e 's~@INCLUDEDIR@~$(INCLUDEDIR)~g;' | \
+		sed -e 's~@INCLUDEDIR@~$(INCLUDE_DIR)~g;' | \
 		sed -e 's~@VERSION@~$(VERSION)~g; ' | \
 		sed -e 's~@LIBS@~$(LIB)~g; ' | \
 		sed -e 's~@LIBDIR@~$(LIBDIR)~g; ' | \
@@ -87,7 +89,7 @@ $(BUILD_PSTAT): $(TOOL_OBJ) $(BUILD_LIBPSTAT)
 	@mkdir -p "$(shell dirname "$@")"
 	$(CC) $(CFLAGS) -o "$@" $(TOOL_OBJ) $(LIBINC) -L$(BUILD)/$(LIBDIR) -lpstat
 
-$(BUILD)/$(INCLUDEDIR)/%.h: %.h
+$(BUILD)/$(INCLUDE_DIR)/%.h: %.h
 	@mkdir -p "$(shell dirname "$@")"
 	@cp -a "$<" "$@"
 
@@ -104,7 +106,7 @@ $(DESTDIR)/$(INSTALL_LIBPSTAT_LIB): $(BUILD_LIBPSTAT_LIB)
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
-$(DESTDIR)/$(INCLUDEDIR)/%.h: $(BUILD)/$(INCLUDEDIR)/%.h
+$(DESTDIR)/$(INCLUDE_DIR)/%.h: $(BUILD)/$(INCLUDE_DIR)/%.h
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
@@ -123,7 +125,7 @@ tools-install: $(DESTDIR)/$(INSTALL_PSTAT)
 
 headers-install: $(INSTALL_HEADERS)
 
-install: libs-install tools-install
+install: libs-install tools-install headers-install
 
 $(BUILD)/%.o : %.c
 	@mkdir -p "$(shell dirname "$@")"
