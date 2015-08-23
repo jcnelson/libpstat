@@ -25,11 +25,11 @@ PSTAT := tools/pstat
 
 PREFIX ?= /usr/local
 DESTDIR ?= /
-INCLUDEDIR ?= /
+INCLUDE_PREFIX ?= /usr/local
 
 BINDIR ?= $(DESTDIR)/$(PREFIX)/bin
 LIBDIR ?= $(DESTDIR)/$(PREFIX)/lib
-INCLUDE_DIR ?= $(DESTDIR)/$(INCLUDEDIR)/include/pstat
+INCLUDE_DIR ?= $(DESTDIR)/$(INCLUDE_PREFIX)/include/pstat
 PKGCONFIGDIR ?= $(DESTDIR)/$(PREFIX)/lib/pkgconfig
 
 OS ?= LINUX
@@ -46,10 +46,10 @@ INSTALL_LIBPSTAT := $(patsubst $(BUILD)/$(LIBDIR)/%,$(LIBDIR)/%,$(BUILD_LIBPSTAT
 
 # NOTE: don't install os/ headers, since they're different for each OS.
 BUILD_HEADERS := $(patsubst %,$(BUILD)/$(INCLUDE_DIR)/%,$(HEADERS))
-INSTALL_HEADERS := $(patsubst %,$(DESTDIR)/$(INCLUDE_DIR)/%,$(wildcard *.h))
+INSTALL_HEADERS := $(patsubst $(BUILD)/$(INCLUDE_DIR)/%,$(INCLUDE_DIR)/%,$(BUILD_HEADERS))
 
 BUILD_PC_FILE := $(BUILD)/libpstat.pc
-INSTALL_PC_FILE := $(DESTDIR)/$(PKGCONFIGDIR)/libpstat.pc
+INSTALL_PC_FILE := $(PKGCONFIGDIR)/libpstat.pc
 
 BUILD_PSTAT := $(patsubst tools/%,$(BUILD)/$(BINDIR)/%,$(PSTAT))
 INSTALL_PSTAT := $(patsubst $(BUILD)/$(BINDIR)/%,$(BINDIR)/%,$(BUILD_PSTAT))
@@ -94,34 +94,34 @@ $(BUILD)/$(INCLUDE_DIR)/%.h: %.h
 	@cp -a "$<" "$@"
 
 
-$(DESTDIR)/$(INSTALL_LIBPSTAT): $(BUILD_LIBPSTAT)
+$(INSTALL_LIBPSTAT): $(BUILD_LIBPSTAT)
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
-$(DESTDIR)/$(INSTALL_LIBPSTAT_SO): $(BUILD_LIBPSTAT_SO)
+$(INSTALL_LIBPSTAT_SO): $(BUILD_LIBPSTAT_SO)
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
-$(DESTDIR)/$(INSTALL_LIBPSTAT_LIB): $(BUILD_LIBPSTAT_LIB)
+$(INSTALL_LIBPSTAT_LIB): $(BUILD_LIBPSTAT_LIB)
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
-$(DESTDIR)/$(INCLUDE_DIR)/%.h: $(BUILD)/$(INCLUDE_DIR)/%.h
+$(INCLUDE_DIR)/%.h: $(BUILD)/$(INCLUDE_DIR)/%.h
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
-$(DESTDIR)/$(INSTALL_PC_FILE): $(BUILD_PC_FILE)
+$(INSTALL_PC_FILE): $(BUILD_PC_FILE)
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
-$(DESTDIR)/$(INSTALL_PSTAT): $(BUILD_PSTAT)
+$(INSTALL_PSTAT): $(BUILD_PSTAT)
 	@mkdir -p "$(shell dirname "$@")"
 	cp -a "$<" "$@"
 
 
-libs-install: $(DESTDIR)/$(INSTALL_LIBPSTAT) $(DESTDIR)/$(INSTALL_LIBPSTAT_SO) $(DESTDIR)/$(INSTALL_LIBPSTAT_LIB)
+libs-install: $(INSTALL_LIBPSTAT) $(INSTALL_LIBPSTAT_SO) $(INSTALL_LIBPSTAT_LIB)
 
-tools-install: $(DESTDIR)/$(INSTALL_PSTAT)
+tools-install: $(INSTALL_PSTAT)
 
 headers-install: $(INSTALL_HEADERS)
 
@@ -137,7 +137,7 @@ clean:
 
 .PHONY: uninstall 
 uninstall:
-	rm -f $(INSTALL_HEADERS) $(DESTDIR)/$(INSTALL_LIBPSTAT_LIB) $(DESTDIR)/$(INSTALL_LIBPSTAT_SO) $(DESTDIR)/$(INSTALL_LIBPSTAT) $(DESTDIR)/$(INSTALL_PC_FILE) $(DESTDIR)/$(INSTALL_PSTAT)
+	rm -f $(INSTALL_HEADERS) $(INSTALL_LIBPSTAT_LIB) $(INSTALL_LIBPSTAT_SO) $(INSTALL_LIBPSTAT) $(INSTALL_PC_FILE) $(INSTALL_PSTAT)
 
 print-%: ; @echo $*=$($*)
 
