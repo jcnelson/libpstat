@@ -25,7 +25,7 @@ PSTAT := tools/pstat
 
 PREFIX ?= /usr/local
 DESTDIR ?= /
-INCLUDE_PREFIX ?= /usr/local
+INCLUDE_PREFIX ?= $(PREFIX)
 
 BINDIR ?= $(DESTDIR)/$(PREFIX)/bin
 LIBDIR ?= $(DESTDIR)/$(PREFIX)/lib
@@ -33,7 +33,6 @@ INCLUDE_DIR ?= $(DESTDIR)/$(INCLUDE_PREFIX)/include/pstat
 PKGCONFIGDIR ?= $(DESTDIR)/$(PREFIX)/lib/pkgconfig
 
 OS ?= LINUX
-
 
 BUILD_LIBPSTAT_LIB := $(patsubst %,$(BUILD)/$(LIBDIR)/%,$(LIBPSTAT_LIB))
 INSTALL_LIBPSTAT_LIB := $(patsubst $(BUILD)/$(LIBDIR)/%,$(LIBDIR)/%,$(BUILD_LIBPSTAT_LIB))
