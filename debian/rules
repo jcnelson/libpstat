@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic -g -fPIC -std=c99
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCHITECTURE)
+%:
+	dh $@
+	
+#override_dh_auto_build:
+#	mkdir $$(pwd)/debian/tmp/
+#	$(MAKE) PREFIX=/usr BUILD=$$(pwd)/debian/tmp/
+#override_dh_auto_install:
+#	$(MAKE) PREFIX=/usr
+#	#$(shell echo)

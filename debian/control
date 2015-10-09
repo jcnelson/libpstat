@@ -1,0 +1,30 @@
+Source: libpstat
+Maintainer: Aldemir Akpinar <aldemir.akpinar@gmail.com>
+Section: utils
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 9)
+
+Package: libpstat
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Library for getting information about running processes
+ Libpstat is a small library for getting informantion on running processes 
+ in an OS-agnostic way. The source source is structured to make it easy for 
+ additional operating systems.
+
+Package: libpstat-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: pstat library development files
+ Libpstat is a small library for getting informantion on running processes
+ in an OS-agnostic way. The source source is structured to make it easy for 
+ additional operating systems.
+
+Package: pstat
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Getting information about running processes
+ Libpstat is a small library for getting informantion on running processes
+ in an OS-agnostic way. The source source is structured to make it easy for 
+ additional operating systems.
