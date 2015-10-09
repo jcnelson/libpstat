@@ -1,0 +1,3 @@
+usr/include/libpstat.h
+usr/lib/*/libpstat.so
+usr/lib/*/libpstat.la
