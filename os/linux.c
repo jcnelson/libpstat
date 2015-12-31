@@ -19,10 +19,10 @@
    <http://www.isc.org/downloads/software-support-policy/isc-license/>.
 */
 
-#include "linux.h"
-
 // Linux-specific implementation 
 #ifdef _LINUX
+
+#include "linux.h"
 
 uint64_t pstat_os_supported_features() {
     return LIBPSTAT_RUNNING | LIBPSTAT_BINARY | LIBPSTAT_STARTTIME;
