@@ -21,6 +21,8 @@
 #ifndef _PSTAT_OS_LINUX_H_
 #define _PSTAT_OS_LINUX_H_
 
+#define _BSD_SOURCE
+
 #include "common.h"
 #include <unistd.h>
 #include <fcntl.h>
