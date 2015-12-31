@@ -46,7 +46,7 @@ void print_pstat( struct pstat* ps ) {
       printf("PSTAT_BINARY=\"%s\"\n", path );
       printf("PSTAT_DELETED=%s\n", pstat_is_deleted( ps ) ? "1": "0" );
       printf("PSTAT_INODE=%ld\n", bin_stat.st_ino );
-      printf("PSTAT_SIZE=%jd\n", bin_stat.st_size );
+      printf("PSTAT_SIZE=%ld\n", (long)bin_stat.st_size );
       printf("PSTAT_MODTIME=%ld\n", bin_stat.st_mtime );
       printf("PSTAT_STARTTIME=%" PRIu64 "\n", pstat_get_starttime( ps ) );
       
