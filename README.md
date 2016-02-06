@@ -14,9 +14,9 @@ Substitute $OS_NAME for "LINUX".
 Installing
 ----------
 
-To install libpstat to /lib and headers to /usr/include:
+To install libpstat to /lib and headers to /usr/include/pstat:
 
-    $ sudo make install PREFIX=/ INCLUDE_DIR=/usr
+    $ sudo make install PREFIX=/ INCLUDE_DIR=/usr/include/pstat
   
 
 Documentation
