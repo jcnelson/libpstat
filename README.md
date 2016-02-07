@@ -16,8 +16,9 @@ Installing
 
 To install libpstat to /lib and headers to /usr/include/pstat:
 
-    $ sudo make install PREFIX=/ INCLUDE_DIR=/usr/include/pstat
+    $ sudo make install PREFIX=/ INCLUDE_PREFIX=/usr
   
+**Advanced:** If you want to install libpstat's headers to a custom location, you can do so by setting the `INCLUDE_DIR` variable instead of the `INCLUDE_PREFIX` variable.  For example, passing `INCLUDE_DIR=/custom/location/` would install the headers directly to `/custom/location`, whereas `INCLUDE_PREFIX=/custom/location` would install the headers to `/custom/location/include/pstat`.
 
 Documentation
 -------------
